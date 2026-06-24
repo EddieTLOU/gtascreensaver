@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTA Screen Saver - Liquid Glass Hub</title>
+    <style>
+        /* Base Setup */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #030107;
+        }
+
+        /* --- Liquid Glass / High Gloss Acrylic Utility Class --- */
+        .liquid-glass {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.01) 100%);
+            backdrop-filter: blur(35px) saturate(220%);
+            -webkit-backdrop-filter: blur(35px) saturate(220%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 
+                0 30px 60px -15px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0px rgba(255, 255, 255, 0.25),
+                inset 0 -10px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Liquid Shimmer Highlight Sheet overlay */
+        .liquid-glass::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: skewX(-25deg);
+            animation: liquidGlow 8s infinite ease-in-out;
+        }
+
+        @keyframes liquidGlow {
+            0% { left: -150%; }
+            30%, 100% { left: 150%; }
+        }
+
+        /* ========================================== */
+        /* INTERACTIVE HOME SCREEN MENU               */
+        /* ========================================== */
+        #home-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #0f081d 0%, #030107 100%);
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #home-screen.hidden {
+            opacity: 0;
+            transform: scale(1.05);
+            pointer-events: none;
+        }
+
+        .menu-title {
+            color: #fff;
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            margin-bottom: 50px;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.15), 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .hub-container {
+            display: flex;
+            gap: 40px;
+            max-width: 90%;
+            width: 900px;
+            justify-content: center;
+        }
+
+        .game-card {
+            flex: 1;
+            height: 280px;
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s ease;
+        }
+
+        .game-card img {
+            width: 100%;
+            height: auto;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.4s ease, filter 0.3s ease;
+        }
+
+        /* Card Custom Highlights */
+        .card-gta5 { border-color: rgba(106, 178, 64, 0.2); }
+        .card-gta5 img { filter: drop-shadow(0 0 20px rgba(106, 178, 64, 0.3)); }
+        .card-gta5:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(106, 178, 64, 0.6);
+        }
+        .card-gta5:hover img {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 35px rgba(106, 178, 64, 0.7));
+        }
+
+        .card-gta6 { border-color: rgba(255, 0, 127, 0.2); }
+        .card-gta6 img { filter: drop-shadow(0 0 20px rgba(255, 0, 127, 0.3)); }
+        .card-gta6:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(255, 0, 127, 0.6);
+        }
+        .card-gta6:hover img {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 35px rgba(255, 0, 127, 0.7));
+        }
+
+        /* ========================================== */
+        /* SCREENSAVER VIEWPLAYERS                    */
+        /* ========================================== */
+        #screensaver-view {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            pointer-events: none;
+        }
+
+        #screensaver-view.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .slideshow-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            display: none;
+        }
+
+        .slideshow-container.active {
+            display: block;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center top;
+            transform-origin: center top;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+        }
+
+        .slide.active {
+            opacity: 1;
+            animation: subtlePan 20s infinite alternate ease-in-out;
+        }
+
+        @keyframes subtlePan {
+            0% { transform: scale(1.00) translate(0px, 0px); }
+            100% { transform: scale(1.04) translate(-5px, 0px); }
+        }
+
+        /* GTA 5 Sharp Mode Layout */
+        .gta5-lock-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-end;
+            padding: 40px;
+        }
+
+        .gta5-blur-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://wallpapercave.com/wp/wp9313677.jpg');
+            background-size: cover;
+            background-position: center top;
+            filter: blur(0px); 
+            transform: scale(1.0);
+        }
+
+        .coming-soon-panel {
+            padding: 30px;
+            border-radius: 28px;
+            text-align: center;
+            z-index: 5;
+            border-color: rgba(106, 178, 64, 0.4);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 35px rgba(106, 178, 64, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .coming-soon-custom-emoji {
+            width: 150px;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            animation: bouncePulse 2s infinite alternate ease-in-out;
+        }
+
+        /* Amplified brightness and higher neon contrast drop shadow */
+        @keyframes bouncePulse {
+            0% { 
+                transform: scale(1); 
+                filter: brightness(1.1) drop-shadow(0 0 15px rgba(106, 178, 64, 0.6)); 
+            }
+            100% { 
+                transform: scale(1.06); 
+                filter: brightness(1.35) drop-shadow(0 0 40px rgba(106, 178, 64, 0.95)); 
+            }
+        }
+
+        /* Vignette Shield Layer */
+        .vignette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(10, 4, 22, 0.0) 0%, rgba(3, 1, 7, 0.7) 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* ========================================== */
+        /* HUD ELEMENT GRAPHICS & HIDER HOOKS         */
+        /* ========================================== */
+        .screensaver-ui {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+        }
+
+        /* Core Transition Rules for Interactive Elements */
+        .brand-panel, .control-cluster {
+            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Idle State Automation Hider Trigger */
+        .screensaver-ui.idle-hidden .control-cluster {
+            opacity: 0;
+            transform: translateY(-15px);
+            pointer-events: none;
+        }
+
+        /* Absolute Manual Override Toggle Class */
+        .brand-panel.manual-hidden {
+            opacity: 0 !important;
+            transform: scale(0.9) translateY(-20px) !important;
+            pointer-events: none !important;
+        }
+
+        /* Top-Left Dynamic Brand HUD Panel */
+        .brand-panel {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            padding: 18px 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 320px;
+            max-width: 90%;
+            border-radius: 24px;
+        }
+
+        .brand-panel img {
+            width: 100%;
+            height: auto;
+            display: none;
+        }
+
+        .brand-panel img.active {
+            display: block;
+        }
+
+        #logo-gta5-hud {
+            filter: drop-shadow(0 0 25px rgba(106, 178, 64, 0.6));
+            max-height: 70px;
+            width: auto;
+        }
+
+        #logo-gta6-hud {
+            filter: drop-shadow(0 0 30px rgba(255, 0, 127, 0.6));
+        }
+
+        /* Top-Right Navigation Cluster Controls */
+        .control-cluster {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .action-btn {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .action-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.85);
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========================================== -->
+    <!-- PORTAL / SELECTION HOME SCREEN             -->
+    <!-- ========================================== -->
+    <div id="home-screen">
+        <div class="menu-title">GTA Screen Saver</div>
+        <div class="hub-container">
+            <!-- GTA 5 Selector Card -->
+            <div class="game-card liquid-glass card-gta5" onclick="launchScreensaver('gta5')">
+                <img src="https://pngimg.com/uploads/gta/gta_PNG13.png" alt="GTA 5 Logo">
+            </div>
+            <!-- GTA 6 Selector Card -->
+            <div class="game-card liquid-glass card-gta6" onclick="launchScreensaver('gta6')">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Grand_Theft_Auto_VI_logo_%28with_gradient%29.svg/960px-Grand_Theft_Auto_VI_logo_%28with_gradient%29.svg.png" alt="GTA 6 Logo">
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- DYNAMIC LIVE SCREENSAVER PLATFORM          -->
+    <!-- ========================================== -->
+    <div id="screensaver-view">
+        
+        <!-- GTA V Layout Container -->
+        <div id="slideshow-gta5" class="slideshow-container">
+            <div class="gta5-lock-wrapper">
+                <div class="gta5-blur-bg"></div>
+                <div class="coming-soon-panel liquid-glass">
+                    <img class="coming-soon-custom-emoji" src="https://ia600103.us.archive.org/22/items/af-70bef-4-705a-4e-68-9094-827037892448-1/af70bef4-705a-4e68-9094-827037892448%20%281%29.png" alt="Custom Badge Logo">
+                </div>
+            </div>
+        </div>
+
+        <!-- GTA VI Artwork Slides Container -->
+        <div id="slideshow-gta6" class="slideshow-container">
+            <div class="slide active" style="background-image: url('https://cdn.mos.cms.futurecdn.net/iPi3bFFgSfLnoNe8NS764n-1920-80.jpg');"></div>
+            <div class="slide" style="background-image: url('https://i.ytimg.com/vi/3092p8sLigU/maxresdefault.jpg');"></div>
+            <div class="slide" style="background-image: url('https://i.ytimg.com/vi/VPxheiG1vk8/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLC3OjhGbfIFxHyzf_3CzBFG0x6eyA');"></div>
+            <div class="slide" style="background-image: url('https://i.ytimg.com/vi/OOqpvMW1CHg/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDsCiZN_UScDXsRINhV1Y8yEZdlEg');"></div>
+            <div class="slide" style="background-image: url('https://external-preview.redd.it/loading-screen-concept-with-most-of-the-new-artworks-v0-cm1tbXZ2aG45OXplMRoZawbQSdCcNdNUIWYUP_UNhktNkTa03ruqg7XFXqxV.png?format=pjpg&auto=webp&s=707e41b236cfe7012e8e1c233dd78cdb6a842eef');"></div>
+            <div class="slide" style="background-image: url('https://images.digitalfoundry.net/af6dc907ef33a/large.jpg');"></div>
+        </div>
+
+        <div class="vignette"></div>
+
+        <!-- HUD Shell Assembly -->
+        <div id="ui-wrapper" class="screensaver-ui">
+            <!-- Dynamic Corner Glass Branding Box -->
+            <div id="brand-hud" class="brand-panel liquid-glass">
+                <img id="logo-gta5-hud" src="https://pngimg.com/uploads/gta/gta_PNG13.png" alt="GTA 5 HUD Logo">
+                <img id="logo-gta6-hud" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Grand_Theft_Auto_VI_logo_%28with_gradient%29.svg/960px-Grand_Theft_Auto_VI_logo_%28with_gradient%29.svg.png" alt="GTA 6 HUD Logo">
+            </div>
+
+            <!-- Dashboard Control Cluster -->
+            <div class="control-cluster">
+                <!-- Logo Hider Button -->
+                <div id="logo-toggle-btn" class="action-btn liquid-glass" onclick="toggleLogoManualVisibility()" title="Toggle Logo Visibility">
+                    <svg id="eye-icon" viewBox="0 0 24 24">
+                        <path id="eye-path" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle id="eye-circle" cx="12" cy="12" r="3" />
+                    </svg>
+                </div>
+                <!-- Return Home Button -->
+                <div class="action-btn liquid-glass" onclick="returnToMainMenu()" title="Return to Main Menu">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                        <polyline points="9 22 9 12 15 12 15 22" />
+                    </svg>
+                </div>
+                <!-- Screen Maximizer Button -->
+                <div id="fullscreen-toggle" class="action-btn liquid-glass" title="Toggle Fullscreen">
+                    <svg id="fs-icon" viewBox="0 0 24 24">
+                        <path d="M15 3h6v6M9 21H3v-6M21 9l-7 7M3 15l7-7" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ENGINE LOGIC SCRIPTING                     -->
+    <!-- ========================================== -->
+    <script>
+        let slideLoopEngine = null;
+        let activeSlides = [];
+        let currentSlideIndex = 0;
+        let idleMouseTimer = null;
+        let isLogoManuallyHidden = false;
+        
+        const crossfadeTimeDuration = 6000;
+        const uiWrapper = document.getElementById('ui-wrapper');
+        const brandHudPanel = document.getElementById('brand-hud');
+        const eyeIcon = document.getElementById('eye-icon');
+
+        // Activation Engine
+        function launchScreensaver(gameMode) {
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('screensaver-view').classList.add('active');
+
+            document.querySelectorAll('.slideshow-container').forEach(el => el.classList.remove('active'));
+            document.getElementById('logo-gta5-hud').classList.remove('active');
+            document.getElementById('logo-gta6-hud').classList.remove('active');
+
+            if (gameMode === 'gta5') {
+                document.getElementById('slideshow-gta5').classList.add('active');
+                document.getElementById('logo-gta5-hud').classList.add('active');
+                activeSlides = [];
+            } else if (gameMode === 'gta6') {
+                document.getElementById('slideshow-gta6').classList.add('active');
+                document.getElementById('logo-gta6-hud').classList.add('active');
+                activeSlides = document.querySelectorAll('#slideshow-gta6 .slide');
+            }
+
+            // Start slide cycle if slides exist
+            currentSlideIndex = 0;
+            if (activeSlides.length > 0) {
+                activeSlides.forEach((slide, i) => {
+                    if (i === 0) slide.classList.add('active');
+                    else slide.classList.remove('active');
+                });
+                clearInterval(slideLoopEngine);
+                slideLoopEngine = setInterval(cycleEngineSlides, crossfadeTimeDuration);
+            } else {
+                clearInterval(slideLoopEngine);
+            }
+
+            // Trigger mouse movement tracker safety
+            startTrackingMouseActivity();
+        }
+
+        function returnToMainMenu() {
+            clearInterval(slideLoopEngine);
+            stopTrackingMouseActivity();
+            document.getElementById('screensaver-view').classList.remove('active');
+            document.getElementById('home-screen').classList.remove('hidden');
+        }
+
+        function cycleEngineSlides() {
+            if (!activeSlides.length) return;
+            activeSlides[currentSlideIndex].classList.remove('active');
+            currentSlideIndex = (currentSlideIndex + 1) % activeSlides.length;
+            activeSlides[currentSlideIndex].classList.add('active');
+        }
+
+        // ========================================== */
+        // INTELLIGENT MOUSE TRACKING ENGINE (2S IDLE)*/
+        // ========================================== */
+        function parseActivityTrigger() {
+            document.body.style.cursor = 'default';
+            uiWrapper.classList.remove('idle-hidden');
+
+            clearTimeout(idleMouseTimer);
+            idleMouseTimer = setTimeout(() => {
+                document.body.style.cursor = 'none';
+                uiWrapper.classList.add('idle-hidden');
+            }, 2000);
+        }
+
+        function startTrackingMouseActivity() {
+            parseActivityTrigger();
+            document.addEventListener('mousemove', parseActivityTrigger);
+        }
+
+        function stopTrackingMouseActivity() {
+            clearTimeout(idleMouseTimer);
+            document.removeEventListener('mousemove', parseActivityTrigger);
+            document.body.style.cursor = 'default';
+            uiWrapper.classList.remove('idle-hidden');
+        }
+
+        // ========================================== */
+        // LOGO VISIBILITY CONTROL OVERRIDE SYSTEM    */
+        // ========================================== */
+        function toggleLogoManualVisibility() {
+            isLogoManuallyHidden = !isLogoManuallyHidden;
+            
+            if (isLogoManuallyHidden) {
+                brandHudPanel.classList.add('manual-hidden');
+                eyeIcon.innerHTML = `
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                `;
+            } else {
+                brandHudPanel.classList.remove('manual-hidden');
+                eyeIcon.innerHTML = `
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                `;
+            }
+        }
+
+        // Fullscreen Controls Integration
+        const fsToggle = document.getElementById('fullscreen-toggle');
+        const fsIcon = document.getElementById('fs-icon');
+
+        const enterFsPath = `<path d="M15 3h6v6M9 21H3v-6M21 9l-7 7M3 15l7-7" />`;
+        const exitFsPath = `<path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />`;
+
+        fsToggle.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen()
+                    .then(() => { fsIcon.innerHTML = exitFsPath; })
+                    .catch(err => { console.error(`Error enabling fullscreen: ${err.message}`); });
+            } else {
+                document.exitFullscreen();
+                fsIcon.innerHTML = enterFsPath;
+            }
+        });
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) fsIcon.innerHTML = enterFsPath;
+            else fsIcon.innerHTML = exitFsPath;
+        });
+    </script>
+</body>
+</html>
