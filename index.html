@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GTA Screen Saver - Liquid Glass Hub</title>
+    <title>Rockstar Games Screen Saver - Liquid Glass Hub</title>
     <style>
         /* Base Setup */
         * {
@@ -82,28 +82,34 @@
             font-size: 2.5rem;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 8px;
+            letter-spacing: 6px;
             margin-bottom: 50px;
             text-shadow: 0 0 30px rgba(255, 255, 255, 0.15), 0 10px 20px rgba(0,0,0,0.5);
+            text-align: center;
+            padding: 0 20px;
         }
 
         .hub-container {
             display: flex;
-            gap: 40px;
-            max-width: 90%;
-            width: 900px;
+            gap: 20px;
+            max-width: 95%;
+            width: 1200px;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .game-card {
             flex: 1;
-            height: 280px;
+            min-width: 230px;
+            height: 260px;
             border-radius: 32px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 40px;
+            padding: 30px;
             cursor: pointer;
+            position: relative;
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s ease;
         }
 
@@ -113,6 +119,23 @@
             max-height: 100%;
             object-fit: contain;
             transition: transform 0.4s ease, filter 0.3s ease;
+        }
+
+        /* Coming Soon Overlays on Cards */
+        .coming-soon-tag {
+            position: absolute;
+            bottom: 20px;
+            background: linear-gradient(135deg, #e00000 0%, #8a0000 100%);
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 6px 14px;
+            border-radius: 20px;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 15px rgba(224, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-transform: uppercase;
+            display: none;
         }
 
         /* Card Custom Highlights */
@@ -136,6 +159,17 @@
         .card-gta6:hover img {
             transform: scale(1.05);
             filter: drop-shadow(0 0 35px rgba(255, 0, 127, 0.7));
+        }
+
+        .card-rdr1, .card-rdr2 { border-color: rgba(224, 0, 0, 0.2); }
+        .card-rdr1 img, .card-rdr2 img { filter: drop-shadow(0 0 20px rgba(224, 0, 0, 0.35)); }
+        .card-rdr1:hover, .card-rdr2:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(224, 0, 0, 0.6);
+        }
+        .card-rdr1:hover img, .card-rdr2:hover img {
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 35px rgba(224, 0, 0, 0.75));
         }
 
         /* ========================================== */
@@ -186,32 +220,83 @@
             transition: opacity 2s ease-in-out;
         }
 
-        /* Standard animation for GTA 6 (Preserved during exit state to prevent snap) */
+        /* Standard active configuration */
         .slide.active {
             opacity: 1;
-        }
-        
-        .slide.active, .slide.exit {
-            animation: subtlePan 20s infinite alternate ease-in-out;
         }
 
         .slide.exit {
             opacity: 0;
         }
 
+        /* Base standard panning loop for GTA6 */
+        #slideshow-gta6 .slide.active, #slideshow-gta6 .slide.exit {
+            animation: subtlePan 20s infinite alternate ease-in-out;
+        }
+
         @keyframes subtlePan {
-            0% { transform: scale(1.06) translate(0px, 0px); }
-            100% { transform: scale(1.12) translate(-5px, 0px); }
+            0% { transform: scale(1.00) translate(0px, 0px); }
+            100% { transform: scale(1.04) translate(-5px, 0px); }
         }
 
-        /* Targeted Extra Zoom Animation for GTA 5 (Preserved during exit state) */
-        #slideshow-gta5 .slide.active, #slideshow-gta5 .slide.exit {
-            animation: subtlePanGTA5 20s infinite alternate ease-in-out;
+        /* High-Intensity Deep Zoom Loop for RDR1 & RDR2 (Matches GTA 5 specs to prevent drop-off glitches) */
+        #slideshow-rdr1 .slide.active, #slideshow-rdr1 .slide.exit,
+        #slideshow-rdr2 .slide.active, #slideshow-rdr2 .slide.exit {
+            animation: deepPanRDR 20s infinite alternate ease-in-out;
         }
 
-        @keyframes subtlePanGTA5 {
+        @keyframes deepPanRDR {
             0% { transform: scale(1.32) translate(0px, 0px); }
             100% { transform: scale(1.40) translate(-5px, 0px); }
+        }
+
+        /* GTA 5 Sharp Mode Locked Layout */
+        .gta5-lock-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-end;
+            padding: 40px;
+        }
+
+        .gta5-blur-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://wallpapercave.com/wp/wp9313677.jpg');
+            background-size: cover;
+            background-position: center top;
+            filter: blur(0px); 
+            transform: scale(1.0);
+        }
+
+        .coming-soon-panel {
+            padding: 30px;
+            border-radius: 28px;
+            text-align: center;
+            z-index: 5;
+            border-color: rgba(106, 178, 64, 0.3);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 30px rgba(106, 178, 64, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .coming-soon-custom-emoji {
+            width: 150px;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            animation: bouncePulse 2s infinite alternate ease-in-out;
+        }
+
+        @keyframes bouncePulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(106, 178, 64, 0.4)); }
+            100% { transform: scale(1.06); filter: drop-shadow(0 0 25px rgba(106, 178, 64, 0.7)); }
         }
 
         /* Vignette Shield Layer */
@@ -289,6 +374,12 @@
             filter: drop-shadow(0 0 30px rgba(255, 0, 127, 0.6));
         }
 
+        #logo-rdr1-hud, #logo-rdr2-hud {
+            filter: drop-shadow(0 0 25px rgba(224, 0, 0, 0.75));
+            max-height: 55px;
+            width: auto;
+        }
+
         /* Top-Right Navigation Cluster Controls */
         .control-cluster {
             position: absolute;
@@ -334,13 +425,21 @@
 <body>
 
     <div id="home-screen">
-        <div class="menu-title">GTA Screen Saver</div>
+        <div class="menu-title">Rockstar Games screensaver</div>
         <div class="hub-container">
             <div class="game-card liquid-glass card-gta5" onclick="launchScreensaver('gta5')">
                 <img src="https://pngimg.com/uploads/gta/gta_PNG13.png" alt="GTA 5 Logo">
             </div>
             <div class="game-card liquid-glass card-gta6" onclick="launchScreensaver('gta6')">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Grand_Theft_Auto_VI_logo_%28with_gradient%29.svg/960px-Grand_Theft_Auto_VI_logo_%28with_gradient%29.svg.png" alt="GTA 6 Logo">
+            </div>
+            <div id="card-rdr1" class="game-card liquid-glass card-rdr1" onclick="launchScreensaver('rdr1')">
+                <img src="https://cdn2.steamgriddb.com/logo/63773ad7392fbd21919e63e555b62c61.png" alt="Red Dead Redemption 1 Logo">
+                <div class="coming-soon-tag">Coming Soon</div>
+            </div>
+            <div id="card-rdr2" class="game-card liquid-glass card-rdr2" onclick="launchScreensaver('rdr2')">
+                <img src="https://logos-world.net/wp-content/uploads/2024/11/Red-Dead-Redemption-Logo.png" alt="Red Dead Redemption 2 Logo">
+                <div class="coming-soon-tag">Coming Soon</div>
             </div>
         </div>
     </div>
@@ -349,11 +448,12 @@
     <div id="screensaver-view">
         
         <div id="slideshow-gta5" class="slideshow-container">
-            <div class="slide active" style="background-image: url('https://i.redd.it/i-recreated-several-of-the-loading-screens-in-game-outfit-v0-dzcwuzjwkob81.jpg?width=3554&format=pjpg&auto=webp&s=8102aacfd91b45cd1922953d67946e59b0a8e496');"></div>
-            <div class="slide" style="background-image: url('https://c4.wallpaperflare.com/wallpaper/597/878/391/5bd3f4a4f17a9-wallpaper-preview.jpg');"></div>
-            <div class="slide" style="background-image: url('https://external-preview.redd.it/o7hervXuE5Wx2MEsfoSMsg3sDTj64KenlXu9ap-vUNI.jpg?auto=webp&s=753aed258a29945d604e5c4fb1a8c866e11e93a2');"></div>
-            <div class="slide" style="background-image: url('https://s1.dmcdn.net/v/MuL181QIvaa1o6NKO/x1080');"></div>
-            <div class="slide" style="background-image: url('https://wallpapercave.com/wp/wp9313677.jpg');"></div>
+            <div class="gta5-lock-wrapper">
+                <div class="gta5-blur-bg"></div>
+                <div class="coming-soon-panel liquid-glass">
+                    <img class="coming-soon-custom-emoji" src="https://ia600103.us.archive.org/22/items/af-70bef-4-705a-4e-68-9094-827037892448-1/af70bef4-705a-4e68-9094-827037892448%20%281%29.png" alt="Custom Badge Logo">
+                </div>
+            </div>
         </div>
 
         <div id="slideshow-gta6" class="slideshow-container">
@@ -365,12 +465,18 @@
             <div class="slide" style="background-image: url('https://images.digitalfoundry.net/af6dc907ef33a/large.jpg');"></div>
         </div>
 
+        <div id="slideshow-rdr1" class="slideshow-container"></div>
+
+        <div id="slideshow-rdr2" class="slideshow-container"></div>
+
         <div class="vignette"></div>
 
         <div id="ui-wrapper" class="screensaver-ui">
             <div id="brand-hud" class="brand-panel liquid-glass">
                 <img id="logo-gta5-hud" src="https://pngimg.com/uploads/gta/gta_PNG13.png" alt="GTA 5 HUD Logo">
                 <img id="logo-gta6-hud" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Grand_Theft_Auto_VI_logo_%28with_gradient%29.svg/960px-Grand_Theft_Auto_VI_logo_%28with_gradient%29.svg.png" alt="GTA 6 HUD Logo">
+                <img id="logo-rdr1-hud" src="https://cdn2.steamgriddb.com/logo/63773ad7392fbd21919e63e555b62c61.png" alt="RDR 1 HUD Logo">
+                <img id="logo-rdr2-hud" src="https://logos-world.net/wp-content/uploads/2024/11/Red-Dead-Redemption-Logo.png" alt="RDR 2 HUD Logo">
             </div>
 
             <div class="control-cluster">
@@ -396,6 +502,30 @@
     </div>
 
     <script>
+        // ==========================================
+        //  IMAGE LINK SLOTS (PLACEHOLDERS)
+        // ==========================================
+        // Insert your link URLs inside the quotes below. 
+        // If left empty "", the system keeps the "Coming Soon" styling automatically.
+        
+        const rdr1Images = [
+            "", // Slide slot 1
+            "", // Slide slot 2
+            "", // Slide slot 3
+            "", // Slide slot 4
+            "", // Slide slot 5
+        ];
+
+        const rdr2Images = [
+            "", // Slide slot 1
+            "", // Slide slot 2
+            "", // Slide slot 3
+            "", // Slide slot 4
+            "", // Slide slot 5
+        ];
+
+        // ==========================================
+
         let slideLoopEngine = null;
         let activeSlides = [];
         let currentSlideIndex = 0;
@@ -407,6 +537,42 @@
         const brandHudPanel = document.getElementById('brand-hud');
         const eyeIcon = document.getElementById('eye-icon');
 
+        // Dynamic Initialization on startup
+        document.addEventListener('DOMContentLoaded', () => {
+            parseRDRConfiguration('rdr1', rdr1Images);
+            parseRDRConfiguration('rdr2', rdr2Images);
+        });
+
+        function parseRDRConfiguration(gameId, imageDeck) {
+            const container = document.getElementById(`slideshow-${gameId}`);
+            const card = document.getElementById(`card-${gameId}`);
+            const badge = card.querySelector('.coming-soon-tag');
+            
+            const filledUrls = imageDeck.filter(url => url && url.trim() !== "");
+            container.innerHTML = "";
+
+            if (filledUrls.length > 0) {
+                // Links found: Hide coming soon indicator
+                badge.style.display = 'none';
+                
+                // Build slide nodes
+                filledUrls.forEach((url, i) => {
+                    const slide = document.createElement('div');
+                    slide.className = i === 0 ? 'slide active' : 'slide';
+                    slide.style.backgroundImage = `url('${url}')`;
+                    container.appendChild(slide);
+                });
+            } else {
+                // No links found: Force teaser coming-soon view
+                badge.style.display = 'block';
+                
+                const fallbackSlide = document.createElement('div');
+                fallbackSlide.className = 'slide active';
+                fallbackSlide.style.backgroundImage = `url('https://gaming-cdn.com/images/news/articles/2327/cover/new-red-dead-redemption-logo-spotted-remaster-to-be-announced-soon-cover64c2b604df6df.jpg')`;
+                container.appendChild(fallbackSlide);
+            }
+        }
+
         // Activation Engine
         function launchScreensaver(gameMode) {
             document.getElementById('home-screen').classList.add('hidden');
@@ -415,18 +581,28 @@
             document.querySelectorAll('.slideshow-container').forEach(el => el.classList.remove('active'));
             document.getElementById('logo-gta5-hud').classList.remove('active');
             document.getElementById('logo-gta6-hud').classList.remove('active');
+            document.getElementById('logo-rdr1-hud').classList.remove('active');
+            document.getElementById('logo-rdr2-hud').classList.remove('active');
 
             if (gameMode === 'gta5') {
                 document.getElementById('slideshow-gta5').classList.add('active');
                 document.getElementById('logo-gta5-hud').classList.add('active');
-                activeSlides = document.querySelectorAll('#slideshow-gta5 .slide');
+                activeSlides = [];
             } else if (gameMode === 'gta6') {
                 document.getElementById('slideshow-gta6').classList.add('active');
                 document.getElementById('logo-gta6-hud').classList.add('active');
                 activeSlides = document.querySelectorAll('#slideshow-gta6 .slide');
+            } else if (gameMode === 'rdr1') {
+                document.getElementById('slideshow-rdr1').classList.add('active');
+                document.getElementById('logo-rdr1-hud').classList.add('active');
+                activeSlides = document.querySelectorAll('#slideshow-rdr1 .slide');
+            } else if (gameMode === 'rdr2') {
+                document.getElementById('slideshow-rdr2').classList.add('active');
+                document.getElementById('logo-rdr2-hud').classList.add('active');
+                activeSlides = document.querySelectorAll('#slideshow-rdr2 .slide');
             }
 
-            // Start slide cycle if slides exist
+            // Start slide cycle loop if multiple slides exist
             currentSlideIndex = 0;
             if (activeSlides.length > 0) {
                 activeSlides.forEach((slide, i) => {
@@ -435,12 +611,14 @@
                     else slide.classList.remove('active');
                 });
                 clearInterval(slideLoopEngine);
-                slideLoopEngine = setInterval(cycleEngineSlides, crossfadeTimeDuration);
+                if (activeSlides.length > 1) {
+                    slideLoopEngine = setInterval(cycleEngineSlides, crossfadeTimeDuration);
+                }
             } else {
                 clearInterval(slideLoopEngine);
             }
 
-            // Trigger mouse movement tracker safety
+            // Trigger mouse idle tracking auto-hider
             startTrackingMouseActivity();
         }
 
@@ -452,21 +630,21 @@
         }
 
         function cycleEngineSlides() {
-            if (!activeSlides.length) return;
+            if (!activeSlides.length || activeSlides.length <= 1) return;
             
-            // Clean up any stale exit states from previous cycles
+            // Clean up any stale exit tags left over from prior switches
             activeSlides.forEach(slide => {
                 if (slide !== activeSlides[currentSlideIndex]) {
                     slide.classList.remove('exit');
                 }
             });
 
-            // Put the current active slide into an exit state
+            // Hand active item into an opacity fading exit frame catch
             let oldSlide = activeSlides[currentSlideIndex];
             oldSlide.classList.remove('active');
             oldSlide.classList.add('exit');
             
-            // Advance index to apply active phase to the incoming slide
+            // Advance array pointer
             currentSlideIndex = (currentSlideIndex + 1) % activeSlides.length;
             activeSlides[currentSlideIndex].classList.add('active');
         }
